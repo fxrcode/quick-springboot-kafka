@@ -54,11 +54,13 @@ public class BookProducerService {
 
     /**
      * async version, anonymous callback for success & failure handling
-     *  the callback interface is implemented as an anonymous class.
-     *  Ref to oracle tutorial
+     *  the callback interface is implemented as an anonymous class: ref to oracle tutorial
+     * ListenableFuture.addCallback() requires ListenableFutureCallback<? super T> callback
+     *  the callback is a consumer, so <? super T>
      * @param topic
      * @param o
      */
+    @Deprecated
     public void sendMessageAsync0(String topic, Object o) {
         ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, o);
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
@@ -72,5 +74,9 @@ public class BookProducerService {
                 LOG.info("Producer sent message to {} -> {}", topic, result.getProducerRecord().value().toString());
             }
         });
+    }
+
+    public void sendMessageAsyncLambda(String topic, Object o) {
+
     }
 }
