@@ -1,13 +1,13 @@
-package com.javaguide.kafkaquickstart;
+package com.javaguide.springbootkafkaquick;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class KafkaQuickstartApplication {
+public class SpringbootKafkaQuickApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KafkaQuickstartApplication.class, args);
+		SpringApplication.run(SpringbootKafkaQuickApplication.class, args);
 	}
 
 }
