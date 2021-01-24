@@ -1,5 +1,6 @@
 package com.javaguide.springbootkafkaquick.service;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class BookProducerService {
      * @param o
      */
     @Deprecated
-    public void sendMessageAsync0(String topic, Object o) {
+    public void sendMessageAsync(String topic, Object o) {
         ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, o);
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
             @Override
@@ -76,7 +77,37 @@ public class BookProducerService {
         });
     }
 
+    /**
+     * lambda version of sendMessageAsync
+     * @param topic
+     * @param o
+     */
+    @Deprecated
     public void sendMessageAsyncLambda(String topic, Object o) {
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, o);
+        future.addCallback(
+                result -> {
+                    assert result != null;
+                    LOG.info("生产者成功发送消息到topic:{} partition:{}的消息", result.getRecordMetadata().topic(), result.getRecordMetadata().partition());
+                },
+                ex -> LOG.error("生产者发送消失败，原因：{}", ex.getMessage()));
+    }
 
+    /**
+     * Enhanced version of sendMessageAsyncLambda with more info (timestamp, key) in producerRecord.
+     * @param topic
+     * @param o
+     */
+    public void sendMessage(String topic, Object o) {
+        ProducerRecord<String, Object> producerRecord =
+                new ProducerRecord<String, Object>(topic, null, System.currentTimeMillis(), String.valueOf(o.hashCode()), o);
+
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(producerRecord);
+        future.addCallback(
+                result -> {
+                    assert result != null;
+                    LOG.info("Producer sent message to topic {}, partition {}", result.getProducerRecord().topic(), result.getProducerRecord().partition());
+                },
+                ex -> LOG.error("Producer failed to send due to {}", ex.getMessage()));
     }
 }
